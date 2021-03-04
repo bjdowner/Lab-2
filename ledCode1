@@ -1,0 +1,94 @@
+#####MORSE DICTIONARY#####
+morseDict = { #create morse code dictionary
+    "a": ".-",
+    "b": "-...",
+    "c": "-.-.",
+    "d": "-..",
+    "e": ".",
+    "f": "..-.",
+    "g": "--.",
+    "h": "....",
+    "i": "..",
+    "j": ".---",
+    "k": "-.-",
+    "l": ".-..",
+    "m": "--",
+    "n": "-.",
+    "o": "---",
+    "p": ".--.",
+    "q": "--.-",
+    "r": ".-.",
+    "s": "...",
+    "t": "-",
+    "u": "..-",
+    "v": "...-",
+    "w": ".--",
+    "x": "-..-",
+    "y": "-.--",
+    "z": "--..",
+    " ": "  "
+}
+
+#####BINARY DICTIONARY#####
+tranDict = { #create binary value dictionary
+    ".": "0",
+    "-": "1",
+    " ": "  ",
+}
+
+#####INITIAL INPUT#####
+string = input("what would you like to translate?:") #prompt user for input
+i = len(string) #create a variable i whose value is the length of the string
+
+#####CONVERT STRING TO MORSE#####
+n = 0 #set indexing variable to keep track of position
+morseStrFin = ""
+while n < i:
+    curLtr = string[n] #starting with 0, identify first character in string
+    iMorse = len(morseDict[curLtr]) #identify length of the morse translation
+    nMorse = 0 #sub indexing variable
+    while nMorse < iMorse:
+        m = morseDict[curLtr] #redefine the morse translation
+        curMorse = m[nMorse] #starting with 0, identify the dot, dash, or space
+        morseString = curMorse #set the current character as a variable
+        morseStrFin = morseStrFin + morseString #concatenate and add new character to total string
+        nMorse = nMorse + 1 #increase subindex variable by 1
+        if nMorse == iMorse: #if this is the last character
+            morseStrFin = morseStrFin + " " #add a space for readability
+    n = n + 1 #increase index variable by 1
+print(morseStrFin)
+
+#####CONVERT MORSE TO BINARY#####
+r = 0 #set indexing variable to keep track of position
+q = len(morseStrFin) #identify length of the morse string
+binStrFin = "" #initialize empty binary string
+while r < q:
+    b = morseStrFin[r] #redefine the morse variable
+    curBin = tranDict[b] #translate the dit, dah, or space to binary value
+    binTran = curBin #set the binary value as its own variable
+    binStrFin = binStrFin + binTran #concatenate and add new character to total string
+    r = r + 1 #increase index by 1
+print(binStrFin)
+
+#####OUTPUT TO LED#####
+import RPi.GPIO as GPIO
+import time
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(17, GPIO.OUT)
+
+x = len(binStrFin) #identify length of the morse string
+place = 0 #initialize index counter
+while place < x: #for every character in the morse string...
+    if binStrFin[place] == "0": #if it's a dot, turn on for 0.25 secs, turn off
+        GPIO.output(17, GPIO.HIGH)
+        time.sleep(0.25)
+        GPIO.output(17, GPIO.LOW)
+    elif binStrFin[place] == "1": #if it's a dash, turn on for 0.5 secs, turn off
+        GPIO.output(17, GPIO.HIGH)
+        time.sleep(0.5)
+        GPIO.output(17, GPIO.LOW)
+    elif binStrFin[place] == " ": #if it's a space, keep off for 0.5 secs
+        time.sleep(0.5)
+    place = place + 1
